@@ -1,0 +1,53 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g. v1.2.3)'
+        required: true
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Create and push tag
+        run: |
+          git tag ${{ inputs.version }}
+          git push origin ${{ inputs.version }}
+
+      - name: Configure CMake
+        run: cmake -B build -S . -A x64
+
+      - name: Build Release
+        run: cmake --build build --config Release
+
+      - name: Package release zip
+        shell: pwsh
+        run: |
+          Copy-Item build\Release\DMG-Converter.exe -Destination DMG-Converter.exe
+          $zipName = "DMG-Converter-${{ inputs.version }}-windows-x64.zip"
+          Compress-Archive -Path DMG-Converter.exe, README.md -DestinationPath $zipName -Force
+          echo "ZIP_NAME=$zipName" >> $env:GITHUB_ENV
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2.3.2
+        with:
+          tag_name: ${{ inputs.version }}
+          name: "DMG-Converter ${{ inputs.version }}"
+          body: |
+            ## DMG-Converter ${{ inputs.version }}
+
+            ### Installation
+            1. Download `DMG-Converter-${{ inputs.version }}-windows-x64.zip`
+            2. Extract and run `DMG-Converter.exe` — no installation required.
+
+            ### Requirements
+            - Windows 10/11 x64
+          files: ${{ env.ZIP_NAME }}

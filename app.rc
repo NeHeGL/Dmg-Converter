@@ -1,0 +1,5 @@
+// DmgConverter application resources
+// 2026 Jeff Molofee (NeHe)
+
+// Icon resource ID 1 — shown in Explorer, taskbar, title bar, and Alt+Tab
+1 ICON "icon.ico"

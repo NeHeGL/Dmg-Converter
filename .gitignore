@@ -1,0 +1,11 @@
+build/
+*.zip
+*.user
+.vs/
+*.exe
+
+# Test / sample disk images — not part of the source distribution
+*.dmg
+*.img
+*.iso
+.git_disabled/
